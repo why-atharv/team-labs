@@ -10,27 +10,54 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install Dependencies (with fallback for missing lockfiles)
         run: |
           npm --prefix backend ci || npm --prefix backend install
           npm --prefix main-screen ci || npm --prefix main-screen install
           npm --prefix mobile-scanner ci || npm --prefix mobile-scanner install
+
+      - name: Start Backend Server in Background
+        run: |
+          npm --prefix backend start > backend/server.log 2>&1 &
+
+      - name: Health Check (Wait for Backend on Port 4000)
+        run: |
+          echo "Waiting for backend on http://127.0.0.1:4000/api/status..."
+          for i in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:4000/api/status > /dev/null; then
+              echo "Backend server is healthy and responding!"
+              exit 0
+            fi
+            echo "Waiting for backend ($i/30)..."
+            sleep 1
+          done
+          echo "Backend failed to start within 30 seconds."
+          exit 1
 
       - name: Run Backend Telemetry & Concurrency Test Suite
         run: node backend/test-installation.js
 
       - name: Build Unified Production Bundle
         run: node build-vercel.js
+
+      - name: Print Backend Server Logs on Failure
+        if: failure()
+        run: |
+          if [ -f backend/server.log ]; then
+            echo "=== Backend Server Logs (backend/server.log) ==="
+            cat backend/server.log
+          else
+            echo "backend/server.log not found"
+          fi
