@@ -71,8 +71,8 @@ function getNetworkIps() {
 const networkList = getNetworkIps();
 const lanIp = networkList[0]?.address || 'localhost';
 const allIps = networkList.map((item) => ({ name: item.name, ip: item.address }));
-const mobileLanUrl = `http://${lanIp}:${MOBILE_PORT}`;
-const screenUrl = `http://localhost:${SCREEN_PORT}`;
+const mobileLanUrl = process.env.MOBILE_SCANNER_URL || `http://${lanIp}:${MOBILE_PORT}`;
+const screenUrl = process.env.MAIN_SCREEN_URL || `http://localhost:${SCREEN_PORT}`;
 
 // Initialize State Engine with network awareness
 const gameState = new GameStateManager(io, {
@@ -188,3 +188,6 @@ process.on('SIGINT', () => {
     process.exit(0);
   });
 });
+
+export { app, server };
+export default app;

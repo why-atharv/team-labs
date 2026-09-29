@@ -55,8 +55,9 @@ export function useMobileSocket(rangerName = 'Ranger') {
     }
 
     // 2. Connect to WebSocket if running locally or backend URL is configured
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const backendUrl = isLocal ? window.location.origin : `http://${window.location.hostname}:4000`;
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const isVercelOrCloud = window.location.hostname.includes('vercel.app') || (window.location.port === '' && !isLocalhost);
+    const backendUrl = (isLocalhost || isVercelOrCloud) ? window.location.origin : `http://${window.location.hostname}:4000`;
     console.log(`📱 [Mobile Connecting] ${backendUrl} as ${rangerName}`);
 
     const socket = io(backendUrl, {

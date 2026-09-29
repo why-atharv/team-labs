@@ -1,9 +1,79 @@
 {
-  "buildCommand": "node build-vercel.js",
-  "outputDirectory": "main-screen/dist",
-  "cleanUrls": true,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "backend": {
+      "root": "backend",
+      "framework": "express",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "main-screen",
+          "format": "url",
+          "env": "MAIN_SCREEN_URL"
+        },
+        {
+          "type": "service",
+          "service": "mobile-scanner",
+          "format": "url",
+          "env": "MOBILE_SCANNER_URL"
+        }
+      ]
+    },
+    "main-screen": {
+      "root": "main-screen",
+      "framework": "vite",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "backend",
+          "format": "url",
+          "env": "BACKEND_URL"
+        }
+      ]
+    },
+    "mobile-scanner": {
+      "root": "mobile-scanner",
+      "framework": "vite",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "backend",
+          "format": "url",
+          "env": "BACKEND_URL"
+        }
+      ]
+    }
+  },
   "rewrites": [
-    { "source": "/scanner", "destination": "/scanner/index.html" },
-    { "source": "/scanner/", "destination": "/scanner/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/socket.io/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/scanner/(.*)",
+      "destination": {
+        "service": "mobile-scanner"
+      }
+    },
+    {
+      "source": "/scanner",
+      "destination": {
+        "service": "mobile-scanner"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "main-screen"
+      }
+    }
   ]
 }
