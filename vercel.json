@@ -1,0 +1,9 @@
+{
+  "buildCommand": "node build-vercel.js",
+  "outputDirectory": "main-screen/dist",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/scanner", "destination": "/scanner/index.html" },
+    { "source": "/scanner/", "destination": "/scanner/index.html" }
+  ]
+}

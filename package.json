@@ -1,0 +1,18 @@
+{
+  "name": "teamlab-wildlife-living-sanctuary",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "3D Interactive Physical Digital Wildlife Living Sanctuary inspired by teamLab",
+  "scripts": {
+    "build": "node build-vercel.js",
+    "start": "concurrently -k -n \"BACKEND,SCREEN,MOBILE\" -c \"green,cyan,yellow\" \"npm run start:backend\" \"npm run start:screen\" \"npm run start:mobile\"",
+    "start:backend": "cd backend && node src/server.js",
+    "start:screen": "cd main-screen && npm run dev",
+    "start:mobile": "cd mobile-scanner && npm run dev",
+    "install:all": "cd backend && npm install && cd ../main-screen && npm install && cd ../mobile-scanner && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
