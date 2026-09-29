@@ -3,45 +3,15 @@
   "services": {
     "backend": {
       "root": "backend",
-      "framework": "express",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "main-screen",
-          "format": "url",
-          "env": "MAIN_SCREEN_URL"
-        },
-        {
-          "type": "service",
-          "service": "mobile-scanner",
-          "format": "url",
-          "env": "MOBILE_SCANNER_URL"
-        }
-      ]
+      "framework": "express"
     },
     "main-screen": {
       "root": "main-screen",
-      "framework": "vite",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "backend",
-          "format": "url",
-          "env": "BACKEND_URL"
-        }
-      ]
+      "framework": "vite"
     },
     "mobile-scanner": {
       "root": "mobile-scanner",
-      "framework": "vite",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "backend",
-          "format": "url",
-          "env": "BACKEND_URL"
-        }
-      ]
+      "framework": "vite"
     }
   },
   "rewrites": [
