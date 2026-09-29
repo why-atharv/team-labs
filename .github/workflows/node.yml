@@ -1,0 +1,36 @@
+name: Node.js CI & Production Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm --prefix backend ci || npm --prefix backend install
+          npm --prefix main-screen ci || npm --prefix main-screen install
+          npm --prefix mobile-scanner ci || npm --prefix mobile-scanner install
+
+      - name: Run Backend Telemetry & Concurrency Test Suite
+        run: node backend/test-installation.js
+
+      - name: Build Unified Production Bundle
+        run: node build-vercel.js
