@@ -1,0 +1,75 @@
+name: Node.js CI & Production Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            main-screen/package-lock.json
+            mobile-scanner/package-lock.json
+
+      - name: Install backend dependencies
+        run: |
+          if [ -f backend/package-lock.json ]; then
+            npm --prefix backend ci
+          else
+            npm --prefix backend install
+          fi
+
+      - name: Install frontend dependencies
+        run: |
+          if [ -f main-screen/package-lock.json ]; then
+            npm --prefix main-screen ci
+          else
+            npm --prefix main-screen install
+          fi
+
+          if [ -f mobile-scanner/package-lock.json ]; then
+            npm --prefix mobile-scanner ci
+          else
+            npm --prefix mobile-scanner install
+          fi
+
+      - name: Start backend server
+        run: |
+          cd backend
+          npm start > server.log 2>&1 &
+          echo $! > ../backend.pid
+
+      - name: Wait for backend health
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4000/api/status >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Backend failed to start on http://127.0.0.1:4000"
+          echo "--- backend/server.log ---"
+          cat backend/server.log || true
+          exit 1
+
+      - name: Run Backend Telemetry & Concurrency Test Suite
+        run: node backend/test-installation.js
+
+      - name: Build Unified Production Bundle
+        run: node build-vercel.js

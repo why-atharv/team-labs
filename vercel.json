@@ -1,0 +1,49 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "backend": {
+      "root": "backend",
+      "framework": "express"
+    },
+    "main-screen": {
+      "root": "main-screen",
+      "framework": "vite"
+    },
+    "mobile-scanner": {
+      "root": "mobile-scanner",
+      "framework": "vite"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/socket.io/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/scanner/(.*)",
+      "destination": {
+        "service": "mobile-scanner"
+      }
+    },
+    {
+      "source": "/scanner",
+      "destination": {
+        "service": "mobile-scanner"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "main-screen"
+      }
+    }
+  ]
+}
